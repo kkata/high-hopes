@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import { GoogleSpreadsheet } from "google-spreadsheet";
+import { JWT } from "google-auth-library";
 import {
   LineChart,
   Line,
@@ -10,11 +13,39 @@ import {
   Brush,
 } from "recharts";
 
-import { useSpreadsheetData } from "../hooks/useSpreadsheetData";
 import { GoogleSpreadsheetRowType } from "../types";
 
+const CLIENT_EMAIL = import.meta.env.VITE_GOOGLE_CLIENT_EMAIL;
+const PRIVATE_KEY = import.meta.env.VITE_GOOGLE_SERVICE_PRIVATE_KEY || "";
+
+const jwt = new JWT({
+  email: CLIENT_EMAIL,
+  key: PRIVATE_KEY.replace(/\\n/g, "\n"),
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
+
 export const Charts = () => {
-  const { data }: { data: GoogleSpreadsheetRowType[] } = useSpreadsheetData();
+  const [data, setData] = useState<GoogleSpreadsheetRowType[]>([]);
+
+  useEffect(() => {
+    const fetchSpreadsheetData = async () => {
+      const doc = new GoogleSpreadsheet(
+        import.meta.env.VITE_SPREADSHEET_ID || "",
+        jwt
+      );
+
+      await doc.loadInfo();
+
+      const sheet = doc.sheetsById[0];
+      const rows = await sheet.getRows<GoogleSpreadsheetRowType>();
+      const rowsObj = rows.map((row) => {
+        return row.toObject();
+      });
+      setData(rowsObj);
+    };
+
+    fetchSpreadsheetData();
+  }, []);
 
   if (!data.length) return <div>Loading...</div>;
 
@@ -25,8 +56,8 @@ export const Charts = () => {
   return (
     <div>
       <LineChart
-        width={1100}
-        height={250}
+        width={1200}
+        height={300}
         data={data}
         syncId="anyId"
         margin={{
@@ -40,7 +71,7 @@ export const Charts = () => {
         <XAxis dataKey="date" />
         <YAxis
           type="number"
-          domain={["dataMin - 1", "dataMax + 1"]}
+          domain={["dataMin - 0.5", "dataMax + 0.5"]}
           unit="kg"
         />
         <Tooltip />
@@ -59,12 +90,11 @@ export const Charts = () => {
           dot={false}
           activeDot={{ r: 8 }}
         />
-        {/* not working correctly ref. https://github.com/recharts/recharts/issues/2479 */}
-        {/* <Brush /> */}
+        <Brush />
       </LineChart>
       <LineChart
-        width={1100}
-        height={250}
+        width={1200}
+        height={300}
         data={data}
         syncId="anyId"
         margin={{
@@ -76,7 +106,11 @@ export const Charts = () => {
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />
-        <YAxis type="number" domain={["dataMin - 1", "dataMax + 1"]} unit="%" />
+        <YAxis
+          type="number"
+          domain={["dataMin - 2", "dataMax + 20"]}
+          unit="%"
+        />
         <Tooltip />
         <Legend />
         <ReferenceLine
@@ -95,8 +129,8 @@ export const Charts = () => {
         />
       </LineChart>
       <LineChart
-        width={1100}
-        height={250}
+        width={1200}
+        height={300}
         data={data}
         syncId="anyId"
         margin={{
