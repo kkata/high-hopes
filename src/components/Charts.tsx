@@ -1,6 +1,3 @@
-import { useState, useEffect } from "react";
-import { GoogleSpreadsheet } from "google-spreadsheet";
-import { JWT } from "google-auth-library";
 import {
   LineChart,
   Line,
@@ -12,49 +9,21 @@ import {
   ReferenceLine,
   Brush,
 } from "recharts";
-
 import { GoogleSpreadsheetRowType } from "../types";
+import { SHEET_NAME_MONTH } from "../constants";
 
-const CLIENT_EMAIL = import.meta.env.VITE_GOOGLE_CLIENT_EMAIL;
-const PRIVATE_KEY = import.meta.env.VITE_GOOGLE_SERVICE_PRIVATE_KEY || "";
+type ChartsProps = {
+  data: GoogleSpreadsheetRowType[];
+  period: string;
+};
 
-const jwt = new JWT({
-  email: CLIENT_EMAIL,
-  key: PRIVATE_KEY.replace(/\\n/g, "\n"),
-  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-});
-
-export const Charts = () => {
-  const [data, setData] = useState<GoogleSpreadsheetRowType[]>([]);
-
-  useEffect(() => {
-    const fetchSpreadsheetData = async () => {
-      const doc = new GoogleSpreadsheet(
-        import.meta.env.VITE_SPREADSHEET_ID || "",
-        jwt
-      );
-
-      await doc.loadInfo();
-
-      const sheet = doc.sheetsById[0];
-      const rows = await sheet.getRows<GoogleSpreadsheetRowType>();
-      const rowsObj = rows.map((row) => {
-        return row.toObject();
-      });
-      setData(rowsObj);
-    };
-
-    fetchSpreadsheetData();
-  }, []);
-
-  if (!data.length) return <div>Loading...</div>;
-
+export const Charts = ({ data, period }: ChartsProps) => {
   const currentWeight = data.slice(-1)[0].体重;
   const currentBodyBatPercentage = data.slice(-1)[0].体脂肪率;
   const currentMuscleMass = data.slice(-1)[0].筋肉量;
 
   return (
-    <div>
+    <>
       <LineChart
         width={1200}
         height={300}
@@ -71,7 +40,7 @@ export const Charts = () => {
         <XAxis dataKey="date" />
         <YAxis
           type="number"
-          domain={["dataMin - 0.5", "dataMax + 0.5"]}
+          domain={["dataMin - 1.5", "dataMax + 1.5"]}
           unit="kg"
         />
         <Tooltip />
@@ -108,7 +77,11 @@ export const Charts = () => {
         <XAxis dataKey="date" />
         <YAxis
           type="number"
-          domain={["dataMin - 2", "dataMax + 20"]}
+          domain={
+            period === SHEET_NAME_MONTH
+              ? ["dataMin - 2", "dataMax + 2"]
+              : ["dataMin - 2", "dataMax + 20"]
+          }
           unit="%"
         />
         <Tooltip />
@@ -164,6 +137,6 @@ export const Charts = () => {
           activeDot={{ r: 8 }}
         />
       </LineChart>
-    </div>
+    </>
   );
 };
