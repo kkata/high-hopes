@@ -77,11 +77,7 @@ export const Charts = ({ data, period }: ChartsProps) => {
         <XAxis dataKey="date" />
         <YAxis
           type="number"
-          domain={
-            period === SHEET_NAME_MONTH
-              ? ["dataMin - 2", "dataMax + 2"]
-              : ["dataMin - 2", "dataMax + 20"]
-          }
+          domain={["dataMin - 2", "dataMax + 18"]}
           unit="%"
         />
         <Tooltip />
