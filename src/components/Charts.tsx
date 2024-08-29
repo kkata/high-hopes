@@ -10,14 +10,12 @@ import {
   Brush,
 } from "recharts";
 import { GoogleSpreadsheetRowType } from "../types";
-import { SHEET_NAME_MONTH } from "../constants";
 
 type ChartsProps = {
   data: GoogleSpreadsheetRowType[];
-  period: string;
 };
 
-export const Charts = ({ data, period }: ChartsProps) => {
+export const Charts = ({ data }: ChartsProps) => {
   const currentWeight = data.slice(-1)[0].体重;
   const currentBodyBatPercentage = data.slice(-1)[0].体脂肪率;
   const currentMuscleMass = data.slice(-1)[0].筋肉量;

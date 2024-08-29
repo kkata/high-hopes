@@ -25,7 +25,7 @@ export const App = () => {
       {isLoading ? (
         <p style={{ margin: "1em" }}>Loading...</p>
       ) : (
-        <Charts data={data} period={currentOption} />
+        <Charts data={data} />
       )}
     </>
   );
