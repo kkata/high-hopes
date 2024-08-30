@@ -3,6 +3,7 @@ import { useSpreadsheet } from "./hooks/useSpreadsheet";
 import { Charts } from "./components/Charts";
 import { RadioButtonGroup } from "./components/RadioButtonGroup";
 import { SHEET_NAME_DAY, SHEET_NAME_MONTH } from "./constants";
+import styles from "./App.module.css";
 
 const options = [SHEET_NAME_MONTH, "日"];
 
@@ -13,7 +14,7 @@ export const App = () => {
   );
 
   return (
-    <>
+    <div className={styles.appWrapper}>
       <RadioButtonGroup
         options={options}
         selectedOption={currentOption}
@@ -22,11 +23,7 @@ export const App = () => {
         }}
       />
 
-      {isLoading ? (
-        <p style={{ margin: "1em" }}>Loading...</p>
-      ) : (
-        <Charts data={data} />
-      )}
-    </>
+      {isLoading ? <p>Loading...</p> : <Charts data={data} />}
+    </div>
   );
 };
