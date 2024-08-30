@@ -1,0 +1,10 @@
+.appWrapper {
+  width: 100%;
+  padding: 30px;
+  max-width: 1600px;
+  margin-inline: auto;
+}
+
+.appWrapper > * + * {
+  margin-top: 1.5rem;
+}
